@@ -1,3 +1,0 @@
-WIFI_SSID="WIFI NETWORK NAME"
-WIFI_PASSWORD="WIFI PASSWORD"
-test_variable="Successfully read from setting.toml"
