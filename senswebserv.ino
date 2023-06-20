@@ -1,7 +1,9 @@
-
 //libraries
+#include <Wire.h>
 #include <WiFi.h>
 #include <Adafruit_SCD30.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 // network credentials
 const char* ssid = "****";
@@ -15,9 +17,28 @@ String header;
 
 Adafruit_SCD30  scd30;
 
-void setup(void)
-{
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+void setup(void) {
   Serial.begin(115200);
+
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x32
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;);
+  }
+  delay(2000);
+  display.clearDisplay();
+
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 10);
+  // Display static text
+  display.println("Ghosts Air Sensor");
+  display.display(); 
   //Initialise SCD30
   if (!scd30.begin()) {
     Serial.println("Failed to find SCD30 chip");
