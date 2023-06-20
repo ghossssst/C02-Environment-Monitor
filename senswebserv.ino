@@ -4,6 +4,7 @@
 #include <Adafruit_SCD30.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <Fonts/FreeMono9pt7b.h>
 
 // network credentials
 const char* ssid = "****";
@@ -30,24 +31,30 @@ void setup(void) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;);
   }
-  delay(2000);
+  
   display.clearDisplay();
-
   display.setTextSize(1);
   display.setTextColor(WHITE);
-  display.setCursor(0, 10);
+  display.setCursor(0, 0);
   // Display static text
   display.println("Ghosts Air Sensor");
   display.display(); 
+  delay(2000);
+
   //Initialise SCD30
   if (!scd30.begin()) {
     Serial.println("Failed to find SCD30 chip");
     while (1) { delay(10); }
   }
+  display.clearDisplay();
   Serial.println("SCD30 Found!");
   // Connect to Wi-Fi network with SSID and password
+  display.setCursor(0, 0);
   Serial.print("Connecting to ");
+  display.println("Connecting to: ");
   Serial.println(ssid);
+  display.println(ssid);
+  display.display();
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -69,12 +76,42 @@ void loop() {
   Serial.println("Data available!");
 
     if (!scd30.read()){ Serial.println("Error reading sensor data"); return; }
-    Serial.print(scd30.temperature);
-    Serial.print(scd30.relative_humidity);
-    Serial.print(scd30.CO2, 3);
+    Serial.print("Temp: ");                                            //Display readings on serial monitor
+    Serial.println(scd30.temperature);
+    Serial.print("Humidity: ");
+    Serial.println(scd30.relative_humidity);
+    Serial.print("CO2: ");
+    Serial.println(scd30.CO2, 2);
   } else {
     //Serial.println("No data");
   }
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  //Display temp
+  display.setCursor(0,0);
+  display.println("Temperature: ");
+  display.setCursor(75,0);
+  display.print(scd30.temperature);
+  display.println(" C");
+  //Display humidity
+  display.setCursor(0,8);
+  display.println("Humidity: ");
+  display.setCursor(57,8);
+  display.print(scd30.relative_humidity);
+  display.println(" %");
+  //Display Co2
+  display.setCursor(0,16);
+  display.println("Co2: ");
+  display.setCursor(27,16);
+  display.print(scd30.CO2, 2);
+  display.println(" ppm");
+  //Display IP
+  display.setCursor(0,24);
+  display.println("IP: ");
+  display.setCursor(20,24);
+  display.print(WiFi.localIP());
+  display.display(); 
 
   delay(100);
   // If a new client connects,
@@ -94,7 +131,7 @@ void loop() {
             client.println("HTTP/1.1 200 OK");
             client.println("Content-Type: text/html");
             client.println("Connection: close");  // the connection will be closed after completion of the response
-            client.println("Refresh: 2");  // refresh the page automatically every 5 sec
+            client.println("Refresh: 1");  // refresh the page automatically every 1 sec
             client.println();
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
@@ -113,7 +150,7 @@ void loop() {
             client.println("<br />");
             //Print Relative Humidity
             client.print("Co2: ");
-            client.print(scd30.CO2, 3);
+            client.print(scd30.CO2, 2);
             client.print(" ppm");
             client.println("<br />");
 
