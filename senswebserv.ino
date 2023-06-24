@@ -16,37 +16,53 @@ WiFiServer server(80);
 // Variable to store the HTTP request
 String header;
 
+//Setup Adafruit_SCD30
 Adafruit_SCD30  scd30;
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+// OLED display width, in pixels
+#define SCREEN_WIDTH 128 
+// OLED display height, in pixels
+#define SCREEN_HEIGHT 32 
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
+
+
 void setup(void) {
+  //Start the serial output at 115,200 baud
   Serial.begin(115200);
 
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x32
+  //Connect to the OLED display
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { //Connect to the OLED display
     Serial.println(F("SSD1306 allocation failed"));
     for(;;);
   }
   
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
+  //Clear display
+  display.clearDisplay(); 
+  //Set text size
+  display.setTextSize(1); 
+  //Set text colour
+  display.setTextColor(WHITE); 
+  //Set text position 
   display.setCursor(0, 0);
-  // Display static text
+  //Set text
   display.println("Ghosts Air Sensor");
+  //Display text
   display.display(); 
-  delay(2000);
+  //Wait 2 seconds
+  delay(2000); 
 
   //Initialise SCD30
   if (!scd30.begin()) {
     Serial.println("Failed to find SCD30 chip");
     while (1) { delay(10); }
   }
+
+  //Clear display
   display.clearDisplay();
+
   Serial.println("SCD30 Found!");
   // Connect to Wi-Fi network with SSID and password
   display.setCursor(0, 0);
@@ -60,13 +76,15 @@ void setup(void) {
     delay(500);
     Serial.print(".");
   }
-  // Print local IP address and start web server
+  // Serial print local IP address and start web server
   Serial.println("");
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
   server.begin();
 }
+
+
 
 void loop() {
   // listen for incoming clients
@@ -76,7 +94,8 @@ void loop() {
   Serial.println("Data available!");
 
     if (!scd30.read()){ Serial.println("Error reading sensor data"); return; }
-    Serial.print("Temp: ");                                            //Display readings on serial monitor
+    //Display readings on serial monitor
+    Serial.print("Temp: ");                                            
     Serial.println(scd30.temperature);
     Serial.print("Humidity: ");
     Serial.println(scd30.relative_humidity);
@@ -86,6 +105,7 @@ void loop() {
     //Serial.println("No data");
   }
 
+  //Update text on display to show current readings
   display.clearDisplay();
   display.setTextSize(1);
   //Display temp
@@ -113,7 +133,6 @@ void loop() {
   display.print(WiFi.localIP());
   display.display(); 
 
-  delay(100);
   // If a new client connects,
   if (client) {
     Serial.println("New Client.");          // print a message out in the serial port
@@ -131,7 +150,7 @@ void loop() {
             client.println("HTTP/1.1 200 OK");
             client.println("Content-Type: text/html");
             client.println("Connection: close");  // the connection will be closed after completion of the response
-            client.println("Refresh: 1");  // refresh the page automatically every 1 sec
+            client.println("Refresh: 2");  // refresh the page automatically every 1 sec
             client.println();
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
